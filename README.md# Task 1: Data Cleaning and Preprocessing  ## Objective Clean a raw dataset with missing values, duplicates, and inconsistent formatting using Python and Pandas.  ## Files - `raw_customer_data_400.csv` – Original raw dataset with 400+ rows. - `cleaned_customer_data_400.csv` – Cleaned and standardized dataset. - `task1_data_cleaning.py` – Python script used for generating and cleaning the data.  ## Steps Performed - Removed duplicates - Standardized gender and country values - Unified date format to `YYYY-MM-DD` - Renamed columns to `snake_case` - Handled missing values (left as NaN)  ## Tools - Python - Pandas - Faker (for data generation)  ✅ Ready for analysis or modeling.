@@ -1,0 +1,23 @@
+# Task 1: Data Cleaning and Preprocessing
+
+## Objective
+Clean a raw dataset with missing values, duplicates, and inconsistent formatting using Python and Pandas.
+
+## Files
+- `raw_customer_data_400.csv` – Original raw dataset with 400+ rows.
+- `cleaned_customer_data_400.csv` – Cleaned and standardized dataset.
+- `task1_data_cleaning.py` – Python script used for generating and cleaning the data.
+
+## Steps Performed
+- Removed duplicates
+- Standardized gender and country values
+- Unified date format to `YYYY-MM-DD`
+- Renamed columns to `snake_case`
+- Handled missing values (left as NaN)
+
+## Tools
+- Python
+- Pandas
+- Faker (for data generation)
+
+✅ Ready for analysis or modeling.
