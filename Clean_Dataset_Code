@@ -1,0 +1,82 @@
+import pandas as pd
+import random
+from faker import Faker
+
+# Initialize Faker
+faker = Faker()
+
+# Generate synthetic data
+num_rows = 400
+genders = ['Male', 'Female']
+countries = ['USA', 'united states', 'U.S.A', 'U.S', 'usa']
+
+# Create lists with potential nulls
+purchase_amounts = [round(random.uniform(100, 500), 2) if random.random() > 0.1 else None for _ in range(num_rows)]
+ages = [random.randint(18, 65) if random.random() > 0.1 else None for _ in range(num_rows)]
+genders_random = [random.choice(['male', 'MALE', 'female', 'FEMALE']) for _ in range(num_rows)]
+countries_random = [random.choice(countries) for _ in range(num_rows)]
+join_dates = [
+    faker.date_between(start_date='-2y', end_date='today').strftime(
+        random.choice(['%Y-%m-%d', '%d/%m/%Y', '%m-%d-%Y', '%Y/%m/%d', '%Y.%m.%d', '%B %d, %Y'])
+    ) for _ in range(num_rows)
+]
+
+# Duplicate a few rows to simulate duplicates
+duplicate_indices = random.sample(range(num_rows), 20)
+duplicate_data = []
+
+for i in duplicate_indices:
+    duplicate_data.append([
+        1000 + i,
+        faker.name(),
+        ages[i],
+        genders_random[i],
+        countries_random[i],
+        join_dates[i],
+        purchase_amounts[i]
+    ])
+
+# Create the main data
+data = []
+for i in range(num_rows):
+    data.append([
+        1000 + i,
+        faker.name(),
+        ages[i],
+        genders_random[i],
+        countries_random[i],
+        join_dates[i],
+        purchase_amounts[i]
+    ])
+
+# Add duplicates
+data += duplicate_data
+
+# Create DataFrame
+columns = ["CustomerID", "Full Name", "Age", "Gender", "Country", "JoinDate", "Purchase Amount"]
+df_raw = pd.DataFrame(data, columns=columns)
+
+# Save raw data
+df_raw.to_csv("raw_customer_data_400.csv", index=False)
+
+# Cleaning Steps
+df_cleaned = df_raw.drop_duplicates()
+
+df_cleaned["Full Name"] = df_cleaned["Full Name"].str.title()
+df_cleaned["Gender"] = df_cleaned["Gender"].str.capitalize()
+df_cleaned["Country"] = df_cleaned["Country"].str.lower().replace({
+    "united states": "usa",
+    "u.s.a": "usa",
+    "u.s": "usa"
+}).str.upper()
+
+# Standardize dates
+df_cleaned["JoinDate"] = pd.to_datetime(df_cleaned["JoinDate"], errors='coerce').dt.strftime('%Y-%m-%d')
+
+# Rename columns to snake_case
+df_cleaned.columns = df_cleaned.columns.str.strip().str.lower().str.replace(' ', '_')
+
+# Save cleaned data
+df_cleaned.to_csv("cleaned_customer_data_400.csv", index=False)
+
+print("✅ Raw and Cleaned datasets generated and saved.")
